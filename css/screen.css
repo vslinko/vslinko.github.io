@@ -1,0 +1,324 @@
+.MainPage {
+  background: #fafafa;
+}
+
+.MainPage-Name {
+  font-family: 'Playfair Display', serif;
+  font-size: 4em;
+  font-weight: 400;
+
+  margin: 100px 0 50px;
+
+  text-align: center;
+}
+
+.MainPage-Position {
+  font-family: 'Playfair Display', serif;
+  font-size: 3em;
+  font-weight: 400;
+
+  margin: 50px 0 100px;
+
+  text-align: center;
+}
+
+.MainPage-LinksList {
+  padding: 0;
+
+  list-style: none;
+
+  text-align: center;
+}
+
+.MainPage-Link {
+  font-family: 'Playfair Display', serif;
+  font-size: 3em;
+  font-weight: 400;
+
+  margin: 50px 0;
+
+  text-decoration: none;
+
+  color: #0074d9;
+}
+
+.MainPage-Link:hover {
+  text-decoration: underline;
+}
+
+.MainPage-Contacts {
+  font-family: 'PT Sans', serif;
+  font-size: 1.2em;
+  font-weight: 400;
+
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+}
+
+.MainPage-ContactsLink {
+  color: #0074d9;
+}
+
+.MainPage-LinksList-Item {
+  margin: 50px 0;
+}
+
+.ResumePage {
+  background: #efefef;
+}
+
+.Resume {
+  font-family: 'PT Sans', sans-serif;
+  font-size: .9em;
+
+  width: 800px;
+  margin: 50px auto;
+
+  border: 1px solid #c0c0c0;
+  border-radius: 3px;
+  background: white;
+}
+
+.Resume-Content {
+  margin: 30px;
+}
+
+.Resume-Header {
+  margin: 30px 0;
+
+  text-align: center;
+}
+
+.Resume-Name {
+  font-family: 'Playfair Display', serif;
+  font-size: 2em;
+  font-weight: 400;
+
+  margin: 0;
+}
+
+.Resume-Position {
+  font-family: 'Playfair Display', serif;
+  font-size: 1em;
+  font-weight: 400;
+
+  margin: 0;
+}
+
+.Resume-Summary {
+  margin: 30px 110px;
+
+  color: #707070;
+}
+
+.Resume-Block {
+  display: table;
+
+  margin: 30px 0;
+}
+
+.Resume-Block-TimelineHeader {
+  margin-bottom: 0;
+}
+
+.Resume-Block-TimelinePoint {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.Resume-Block-TimelinePointFirst {
+  margin-top: 0;
+}
+
+.Resume-Block-TimelinePointLast {
+  margin-top: 0;
+}
+
+.Resume-Block-Header {
+  display: table-cell;
+
+  width: 200px;
+  padding-right: 15px;
+
+  text-align: center;
+
+  border-right: 1px solid #e0e0e0;
+}
+
+.Resume-Block-Content {
+  display: table-cell;
+
+  padding-left: 30px;
+}
+
+.Resume-Block-Title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3em;
+  font-weight: 400;
+
+  margin: 0;
+}
+
+.ResumeLink {
+  color: #0074d9;
+}
+
+.ResumePoint {
+  display: table;
+
+  margin: 10px 0;
+}
+
+.ResumePoint-Title {
+  font-weight: 700;
+
+  display: table-cell;
+
+  width: 100px;
+}
+
+.ResumePoint-Content {
+  display: table-cell;
+}
+
+.ResumeProfile {
+  display: inline-block;
+
+  margin: 10px 20px 10px 0;
+}
+
+.ResumeDateRange {
+  font-family: 'Playfair Display', serif;
+  font-size: .9em;
+
+  margin: 10px 0;
+}
+
+.ResumeDateRange-Date {
+  font-weight: 700;
+}
+
+.ResumeSkillsListTitle {
+  margin-bottom: 5px;
+}
+
+.ResumeSkillsList {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.ResumeSkillsList-Item {
+  font-size: 1.1em;
+  line-height: 1.8;
+
+  display: inline-block;
+
+  margin-right: 10px;
+}
+
+.ResumeSkillsList-Item:after {
+  content: ',';
+}
+
+.ResumeSkillsList-Item:last-child:after {
+  content: '.';
+}
+
+@media print {
+  #profiles {
+    display: none;
+  }
+
+  .Resume {
+    font-size: .70em;
+
+    width: 100%;
+    margin: 0;
+
+    border: none;
+  }
+
+  .Resume-Summary {
+    color: #303030;
+  }
+
+  .ResumeLink {
+    text-decoration: none;
+
+    color: black;
+  }
+
+  .ResumeLink-PrintAsBold {
+    font-weight: bold;
+  }
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 960px) {
+  .MainPage-Name {
+    font-size: 2em;
+
+    margin-top: 75px;
+    margin-bottom: 20px;
+  }
+
+  .MainPage-Position {
+    font-size: 1.5em;
+
+    margin-top: 20px;
+  }
+
+  .MainPage-Link {
+    font-size: 1.5em;
+  }
+
+  .MainPage-Contacts {
+    font-size: 1em;
+
+    bottom: 30px;
+  }
+
+  .Resume {
+    width: 95%;
+    margin: 10px auto;
+  }
+
+  .Resume-Summary {
+    width: 100%;
+    margin: 30px 0;
+  }
+
+  .Resume-Block, .Resume-Block-Header, .Resume-Block-Content {
+    display: block;
+  }
+
+  .Resume-Block-Header {
+    width: 100%;
+    padding: 0;
+
+    text-align: center;
+
+    border: none;
+  }
+
+  .Resume-Block-Content {
+    padding: 0;
+  }
+
+  #profiles .Resume-Block-Content {
+    text-align: center;
+  }
+
+  .ResumePoint {
+    width: 250px;
+    margin: 10px auto;
+  }
+
+  .ResumePoint-Title {
+    padding-right: 20px;
+
+    text-align: right;
+  }
+}
