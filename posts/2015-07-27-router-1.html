@@ -1,325 +1,128 @@
-<!DOCTYPE html>
-<html class="page" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Isomorphic router in&nbsp;functional paradigm — Blog — Vyacheslav Slinko's website</title>
-    <link rel="stylesheet" href="/css/normalize.min.css" />
-    <link rel="stylesheet" href="/css/screen.css" />
-  </head>
-  <body class="page__body">
+<!doctype html><html class=page lang=en><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><title>Isomorphic router in functional paradigm — Blog — Vyacheslav Slinko's website</title><link href=/css/normalize.min.css rel=stylesheet><link href=/css/screen.css rel=stylesheet><body class=page__body><article class="article h-entry"><h1 class="article__header p-name">Isomorphic router in functional paradigm</h1><section class="article__content e-content"><link href=/css/hljs.css rel=stylesheet><p>Recently, the functional paradigm has become more popular in the frontend community and elsewhere. I think it's wonderful because functions are much easier to write and test, this gives us more maintainable codebase, and we all know that maintenance is a pain. I won't describe the functional paradigm in depth, but I'll use its principles.. If you want to read about functional programming then you could read the article, <a href=http://www.defmacro.org/ramblings/fp.html>Functional Programming For The Rest of Us</a> and watch the slides, <a href=http://scott.sauyet.com/Javascript/Talk/FunctionalProgramming/ >Functional Programming</a>.<p>In addition to functional paradigm, the frontend community is developing ideas about isomorphic code and isomorphic applications. In short, isomorphic code runs on both sides, client and server. The pros are obvious — you can use the same code on both platforms and not repeat yourself.<p>To describe the meaning of isomorphic applications I should tell you about the main problem of modern client-side web applications. These days everyone owns some type of mobile device but the cellular network isn't good enough, which makes developers think about performance and interactivity. Loading time can be optimized on classic websites but they are not interactive enough. The opposite is true of web applications, which are much more interactive but have a long initialization process.<p>These problems are solved in isomorphic applications. Using isomorphic code, the server could initialize an instance of the client application for every request. This means that the server can send a pre-rendered application screen to the client and the client could show it to the user while other resources are still loading. After all resources have been loaded by the client, it could initialize its own instance of the application and replace the screen without the user knowing.<p>In this article series I'll try to describe and implement a simple isomorphic router using functional paradigm principles. My experience as a functional API architect isn't extensive, so I consider this an experiment.<p>I choose router because it's an important and integral part of any modern client-side web application. Most popular frameworks provide their own routers out of the box, but these routers usually aren't simple. I'll try to implement a simple and extendible router at the same time.<p>I'll use the awesome static type checker, <a href=http://flowtype.org/ >Flow</a>, and all of the new ECMAScript features available in <a href=https://babeljs.io/ >Babel</a>.<h2>Part 1 — Definitions</h2><p>Before implementation I should define what the router does and the individual router parts. It's really simple — the router transforms some URL into an action which changes the current screen of application. This action is usually called a <em>transition</em>. A transition could be asynchronous if the new screen depends on some data on a server. At the same time, a transition can't return a new screen if the URL isn't valid for it.<pre><code class=lang-js><span class=hljs-keyword>type</span> <span class=hljs-type>Transition</span> = (url: <span class=hljs-type>Url</span>) => <span class=hljs-type>Promise</span>&lt;?<span class=hljs-type>Screen</span>>
+</code></pre><p>The URL is just a string, but what is a screen? I don't want to depend on any framework or template engine so in my case, a screen could be any object.<pre><code class=lang-js><span class=hljs-keyword>type</span> <span class=hljs-type>Url </span>= string
+<span class=hljs-keyword>type</span> <span class=hljs-type>Screen </span>= Object
+</code></pre><p>The router itself is a system that can push notifications about screen changes and can be notified about URL changes. It's very similar to <em>Observable</em> behavior that is implemented in the <a href=https://github.com/Reactive-Extensions/RxJS>RxJS</a> library, but I don't want complicate my router, so I just define a simple subscribe API.<pre><code class=lang-js><span class=hljs-keyword>type</span> <span class=hljs-type>Listener</span>&lt;<span class=hljs-type>T</span>> = (value: ?<span class=hljs-type>T</span>) => void
+<span class=hljs-keyword>type</span> <span class=hljs-type>Subscriber</span>&lt;<span class=hljs-type>T</span>> = (listener: <span class=hljs-type>Listener</span>&lt;<span class=hljs-type>T</span>>) => <span class=hljs-type>Unsubscriber</span>
+<span class=hljs-keyword>type</span> <span class=hljs-type>Unsubscriber</span> = () => void
 
-    <article class="article h-entry">
-      <h1 class="article__header p-name">Isomorphic router in&nbsp;functional paradigm</h1>
-      <section class="article__content e-content">
-<link rel="stylesheet" href="/css/hljs.css" />
-
-<p>
-  Recently, the functional paradigm has become more popular in&nbsp;the frontend
-  community and elsewhere. I&nbsp;think it&#39;s wonderful because functions are
-  much easier to&nbsp;write and test, this gives&nbsp;us more maintainable
-  codebase, and we&nbsp;all know that maintenance is&nbsp;a&nbsp;pain.
-  I&nbsp;won&#39;t describe the functional paradigm in depth, but I&#39;ll use
-  its principles.. If&nbsp;you want to&nbsp;read about functional programming
-  then you could read the article,
-  <a href="http://www.defmacro.org/ramblings/fp.html"
-    >Functional Programming For The Rest of&nbsp;Us</a
-  >
-  and watch the slides,
-  <a href="http://scott.sauyet.com/Javascript/Talk/FunctionalProgramming/"
-    >Functional Programming</a
-  >.
-</p>
-<p>
-  In&nbsp;addition to&nbsp;functional paradigm, the frontend community
-  is&nbsp;developing ideas about isomorphic code and isomorphic applications.
-  In&nbsp;short, isomorphic code runs on&nbsp;both sides, client and server. The
-  pros are obvious&nbsp;&mdash; you can use the same code on&nbsp;both platforms
-  and not repeat yourself.
-</p>
-<p>
-  To&nbsp;describe the meaning of&nbsp;isomorphic applications&nbsp;I should
-  tell you about the main problem of&nbsp;modern client-side web applications.
-  These days everyone owns some type of&nbsp;mobile device but the cellular
-  network isn&#39;t good enough, which makes developers think about performance
-  and interactivity. Loading time can be&nbsp;optimized on&nbsp;classic websites
-  but they are not interactive enough. The opposite is&nbsp;true of&nbsp;web
-  applications, which are much more interactive but have a long initialization
-  process.
-</p>
-<p>
-  These problems are solved in&nbsp;isomorphic applications. Using isomorphic
-  code, the server could initialize an&nbsp;instance of&nbsp;the client
-  application for every request. This means that the server can send
-  a&nbsp;pre-rendered application screen to&nbsp;the client and the client could
-  show it&nbsp;to&nbsp;the user while other resources are still loading. After
-  all resources have been loaded by&nbsp;the client, it&nbsp;could initialize
-  its own instance of&nbsp;the application and replace the screen without the
-  user knowing.
-</p>
-<p>
-  In&nbsp;this article series I&#39;ll try to&nbsp;describe and implement
-  a&nbsp;simple isomorphic router using functional paradigm principles.
-  My&nbsp;experience as&nbsp;a&nbsp;functional API architect isn&#39;t
-  extensive, so&nbsp;I consider this an&nbsp;experiment.
-</p>
-<p>
-  I&nbsp;choose router because it&#39;s an&nbsp;important and integral part
-  of&nbsp;any modern client-side web application. Most popular frameworks
-  provide their own routers out of&nbsp;the box, but these routers usually
-  aren&#39;t simple. I&#39;ll try to&nbsp;implement a simple and extendible
-  router at&nbsp;the same time.
-</p>
-<p>
-  I&#39;ll use the awesome static type checker,
-  <a href="http://flowtype.org/">Flow</a>, and all of&nbsp;the new ECMAScript
-  features available in&nbsp;<a href="https://babeljs.io/">Babel</a>.
-</p>
-
-<h2>Part 1&nbsp;&mdash; Definitions</h2>
-<p>
-  Before implementation&nbsp;I should define what the router does and the
-  individual router parts. It&#39;s really simple&nbsp;&mdash; the router
-  transforms some URL into an&nbsp;action which changes the current screen
-  of&nbsp;application. This action is&nbsp;usually called a <em>transition</em>.
-  A&nbsp;transition could be&nbsp;asynchronous if&nbsp;the new screen depends on
-  some data on&nbsp;a&nbsp;server. At&nbsp;the same time, a&nbsp;transition
-  can&#39;t return a&nbsp;new screen if&nbsp;the URL isn&#39;t valid
-  for&nbsp;it.
-</p>
-<pre><code class="lang-js"><span class="hljs-keyword">type</span> <span class="hljs-type">Transition</span> = (url: <span class="hljs-type">Url</span>) =&gt; <span class="hljs-type">Promise</span>&lt;?<span class="hljs-type">Screen</span>&gt;
-</code></pre>
-<p>
-  The URL is&nbsp;just a&nbsp;string, but what is&nbsp;a&nbsp;screen?
-  I&nbsp;don&#39;t want to&nbsp;depend on&nbsp;any framework or&nbsp;template
-  engine so&nbsp;in&nbsp;my&nbsp;case, a&nbsp;screen could be&nbsp;any object.
-</p>
-<pre><code class="lang-js"><span class="hljs-keyword">type</span> <span class="hljs-type">Url </span>= string
-<span class="hljs-keyword">type</span> <span class="hljs-type">Screen </span>= Object
-</code></pre>
-<p>
-  The router itself is&nbsp;a&nbsp;system that can push notifications about
-  screen changes and can be&nbsp;notified about URL changes. It&#39;s very
-  similar to&nbsp;<em>Observable</em> behavior that is&nbsp;implemented
-  in&nbsp;the
-  <a href="https://github.com/Reactive-Extensions/RxJS">RxJS</a> library,
-  but&nbsp;I don&#39;t want complicate my&nbsp;router, so&nbsp;I just define
-  a&nbsp;simple subscribe API.
-</p>
-<pre><code class="lang-js"><span class="hljs-keyword">type</span> <span class="hljs-type">Listener</span>&lt;<span class="hljs-type">T</span>&gt; = (value: ?<span class="hljs-type">T</span>) =&gt; void
-<span class="hljs-keyword">type</span> <span class="hljs-type">Subscriber</span>&lt;<span class="hljs-type">T</span>&gt; = (listener: <span class="hljs-type">Listener</span>&lt;<span class="hljs-type">T</span>&gt;) =&gt; <span class="hljs-type">Unsubscriber</span>
-<span class="hljs-keyword">type</span> <span class="hljs-type">Unsubscriber</span> = () =&gt; void
-
-<span class="hljs-keyword">type</span> <span class="hljs-type">Router</span> = {
-  subscribe: <span class="hljs-type">Subscriber</span>&lt;<span class="hljs-type">Screen</span>&gt;,
-  navigateTo: (url: <span class="hljs-type">Url</span>) =&gt; <span class="hljs-type">Promise</span>&lt;?<span class="hljs-type">Screen</span>&gt;
+<span class=hljs-keyword>type</span> <span class=hljs-type>Router</span> = {
+  subscribe: <span class=hljs-type>Subscriber</span>&lt;<span class=hljs-type>Screen</span>>,
+  navigateTo: (url: <span class=hljs-type>Url</span>) => <span class=hljs-type>Promise</span>&lt;?<span class=hljs-type>Screen</span>>
 }
-</code></pre>
-<p>
-  Listener is&nbsp;a&nbsp;function that receives changes, Subscriber
-  is&nbsp;a&nbsp;function that receives a&nbsp;listener and returns the
-  Unsubscriber function. So&nbsp;Router has a function that subscribes
-  on&nbsp;the current screen and a&nbsp;function that notifies the router about
-  the current URL.
-</p>
-<p>
-  Isomorphism imposes a&nbsp;limitation on&nbsp;singletones usage. Also the
-  router should have knowledge about all application transitions. The router
-  constructor solves that problems.
-</p>
-<pre><code class="lang-js"><span class="hljs-keyword">type</span> <span class="hljs-type">RouterCreator</span> = (transition: <span class="hljs-type">Transition</span>) =&gt; <span class="hljs-type">Router</span>
-</code></pre>
-<p>
-  You could see that this constructor receives only one transition function. But
-  every single application that needs the router has at&nbsp;least two
-  transitions!
-</p>
-<p>
-  I&nbsp;could do&nbsp;it&nbsp;like in&nbsp;most big routers&nbsp;&mdash; write
-  a&nbsp;standard for route definitions, accept array of&nbsp;routes, implement
-  a&nbsp;matching algorithm, or&nbsp;I could provide to&nbsp;a user a&nbsp;lot
-  of&nbsp;abstract classes like Route, RouteCollection, RouteMatchingStrategy,
-  etc. All these variants make code and API more complicated and gives less
-  freedom to&nbsp;configuration. My&nbsp;goal is&nbsp;the opposite - I&nbsp;want
-  to&nbsp;make it&nbsp;all as&nbsp;simple as&nbsp;possible and functional
-  paradigm helps me&nbsp;do that.
-</p>
-<blockquote>
-  <p>
-    Providing a&nbsp;single function into the router releases it&nbsp;from the
-    requirement to&nbsp;implement different algorithms. For the router, that
-    function is&nbsp;a&nbsp;fully prepared constructor of&nbsp;a&nbsp;screen.
-  </p>
-</blockquote>
-<p>
-  Transition is&nbsp;a&nbsp;simple function that&#39;s why we&nbsp;can apply
-  to&nbsp;it&nbsp;every functional pattern, including higher-order functions.
-  Using higher-order function, I&nbsp;can compose all application transitions
-  into a&nbsp;single function. I&#39;ll describe this pattern in&nbsp;the next
-  part.
-</p>
-<p>
-  That&#39;s all for basic router parts. Other definitions will be&nbsp;added
-  later.
-</p>
+</code></pre><p>Listener is a function that receives changes, Subscriber is a function that receives a listener and returns the Unsubscriber function. So Router has a function that subscribes on the current screen and a function that notifies the router about the current URL.<p>Isomorphism imposes a limitation on singletones usage. Also the router should have knowledge about all application transitions. The router constructor solves that problems.<pre><code class=lang-js><span class=hljs-keyword>type</span> <span class=hljs-type>RouterCreator</span> = (transition: <span class=hljs-type>Transition</span>) => <span class=hljs-type>Router</span>
+</code></pre><p>You could see that this constructor receives only one transition function. But every single application that needs the router has at least two transitions!<p>I could do it like in most big routers — write a standard for route definitions, accept array of routes, implement a matching algorithm, or I could provide to a user a lot of abstract classes like Route, RouteCollection, RouteMatchingStrategy, etc. All these variants make code and API more complicated and gives less freedom to configuration. My goal is the opposite - I want to make it all as simple as possible and functional paradigm helps me do that.<blockquote><p>Providing a single function into the router releases it from the requirement to implement different algorithms. For the router, that function is a fully prepared constructor of a screen.</blockquote><p>Transition is a simple function that's why we can apply to it every functional pattern, including higher-order functions. Using higher-order function, I can compose all application transitions into a single function. I'll describe this pattern in the next part.<p>That's all for basic router parts. Other definitions will be added later.<h2>Part 2. Higher-order transitions</h2><p>This part will contain more code than words. I'll start with two transition functions for two screens.<pre><code class=lang-js>type QueryParameters = {[<span class=hljs-attribute>key</span>: <span class=hljs-built_in>string</span>]: <span class=hljs-built_in>string</span>}
 
-<h2>Part&nbsp;2. Higher-order transitions</h2>
-<p>
-  This part will contain more code than words. I&#39;ll start with two
-  transition functions for two screens.
-</p>
-<pre><code class="lang-js">type QueryParameters = {[<span class="hljs-attribute">key</span>: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">string</span>}
-
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">indexTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">url</span> !== <span class="hljs-string">'/'</span>) {
-    <span class="hljs-keyword">return</span>
+<span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>indexTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+  <span class=hljs-keyword>if</span> (<span class=hljs-built_in>url</span> !== <span class=hljs-string>'/'</span>) {
+    <span class=hljs-keyword>return</span>
   }
 
-  <span class="hljs-keyword">const</span> props = <span class="hljs-keyword">await</span> api.fetchIndexData()
+  <span class=hljs-keyword>const</span> props = <span class=hljs-keyword>await</span> api.fetchIndexData()
 
-  <span class="hljs-keyword">return</span> {<span class="hljs-attribute">component</span>: <span class="hljs-string">'IndexPage'</span>, props}
+  <span class=hljs-keyword>return</span> {<span class=hljs-attribute>component</span>: <span class=hljs-string>'IndexPage'</span>, props}
 }
 
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">itemTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-  <span class="hljs-keyword">const</span> <span class="hljs-attribute">queryParameters</span>: ?QueryParameters = matchRoutePattern(<span class="hljs-string">'/items/:id'</span>, <span class="hljs-built_in">url</span>)
+<span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>itemTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+  <span class=hljs-keyword>const</span> <span class=hljs-attribute>queryParameters</span>: ?QueryParameters = matchRoutePattern(<span class=hljs-string>'/items/:id'</span>, <span class=hljs-built_in>url</span>)
 
-  <span class="hljs-keyword">if</span> (!queryParameters) {
-    <span class="hljs-keyword">return</span>
+  <span class=hljs-keyword>if</span> (!queryParameters) {
+    <span class=hljs-keyword>return</span>
   }
 
-  <span class="hljs-title">const</span> {id} = queryParameters
+  <span class=hljs-title>const</span> {id} = queryParameters
 
-  <span class="hljs-keyword">const</span> props = <span class="hljs-keyword">await</span> api.fetchItemData({id})
+  <span class=hljs-keyword>const</span> props = <span class=hljs-keyword>await</span> api.fetchItemData({id})
 
-  <span class="hljs-keyword">return</span> {<span class="hljs-attribute">component</span>: <span class="hljs-string">'ItemPage'</span>, props}
+  <span class=hljs-keyword>return</span> {<span class=hljs-attribute>component</span>: <span class=hljs-string>'ItemPage'</span>, props}
 }
-</code></pre>
-<p>
-  Pretty easy but&nbsp;I don&#39;t want to&nbsp;implement the URL matching
-  in&nbsp;every transition. I&#39;ve already extracted everything that&nbsp;I
-  could into separate functions, but&nbsp;I can dig deeper. Functions
-  in&nbsp;JavaScript are first-class citizens. This means that&nbsp;I can pass
-  any function as&nbsp;an&nbsp;argument and return one function from another.
-  Using these properties of&nbsp;JavaScript, I&nbsp;can write another function
-  that will create transitions for&nbsp;me.
-</p>
-<pre><code class="lang-js">type TransitionHandler = <span class="hljs-function">(<span class="hljs-params">queryParameters: QueryParameters</span>) =&gt;</span> <span class="hljs-built_in">Promise</span>&lt;Screen&gt;
+</code></pre><p>Pretty easy but I don't want to implement the URL matching in every transition. I've already extracted everything that I could into separate functions, but I can dig deeper. Functions in JavaScript are first-class citizens. This means that I can pass any function as an argument and return one function from another. Using these properties of JavaScript, I can write another function that will create transitions for me.<pre><code class=lang-js>type TransitionHandler = <span class=hljs-function>(<span class=hljs-params>queryParameters: QueryParameters</span>) =></span> <span class=hljs-built_in>Promise</span>&lt;Screen>
 
-type TransitionCreator = <span class="hljs-function">(<span class="hljs-params">pattern: string, handler: TransitionHandler</span>) =&gt;</span> Transition
+type TransitionCreator = <span class=hljs-function>(<span class=hljs-params>pattern: string, handler: TransitionHandler</span>) =></span> Transition
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createTransition</span>(<span class="hljs-params">pattern: string, handler: TransitionHandler</span>): <span class="hljs-title">Transition</span> </span>{
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">const</span> queryParameters: ?QueryParameters = matchRoutePattern(pattern, url)
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>createTransition</span>(<span class=hljs-params>pattern: string, handler: TransitionHandler</span>): <span class=hljs-title>Transition</span> </span>{
+  <span class=hljs-keyword>return</span> <span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>transition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>const</span> queryParameters: ?QueryParameters = matchRoutePattern(pattern, url)
 
-    <span class="hljs-keyword">if</span> (queryParameters) {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> handler(queryParameters)
+    <span class=hljs-keyword>if</span> (queryParameters) {
+      <span class=hljs-keyword>return</span> <span class=hljs-keyword>await</span> handler(queryParameters)
     }
   }
 }
-</code></pre>
-<p>Now the transitions have become simpler.</p>
-<pre><code class="lang-js"><span class="hljs-keyword">const</span> indexTransition: Transition = createTransition(<span class="hljs-string">'/'</span>,
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">queryParameters: QueryParameters</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">component</span>: <span class="hljs-string">'IndexPage'</span>,
-      <span class="hljs-attr">props</span>: <span class="hljs-keyword">await</span> api.fetchIndexData()
+</code></pre><p>Now the transitions have become simpler.<pre><code class=lang-js><span class=hljs-keyword>const</span> indexTransition: Transition = createTransition(<span class=hljs-string>'/'</span>,
+  <span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span>(<span class=hljs-params>queryParameters: QueryParameters</span>): <span class=hljs-title>Promise</span>&lt;<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>return</span> {
+      <span class=hljs-attr>component</span>: <span class=hljs-string>'IndexPage'</span>,
+      <span class=hljs-attr>props</span>: <span class=hljs-keyword>await</span> api.fetchIndexData()
     }
   }
 )
 
-<span class="hljs-keyword">const</span> itemTransition: Transition = createTransition(<span class="hljs-string">'/items/:id'</span>,
-  <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">{id: string}: QueryParameters</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">component</span>: <span class="hljs-string">'ItemPage'</span>,
-      <span class="hljs-attr">props</span>: <span class="hljs-keyword">await</span> api.fetchItemData({id})
+<span class=hljs-keyword>const</span> itemTransition: Transition = createTransition(<span class=hljs-string>'/items/:id'</span>,
+  <span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span>(<span class=hljs-params>{id: string}: QueryParameters</span>): <span class=hljs-title>Promise</span>&lt;<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>return</span> {
+      <span class=hljs-attr>component</span>: <span class=hljs-string>'ItemPage'</span>,
+      <span class=hljs-attr>props</span>: <span class=hljs-keyword>await</span> api.fetchItemData({id})
     }
   }
 )
-</code></pre>
-<p>
-  However, how can&nbsp;I pass these two functions into one argument?
-  To&nbsp;do&nbsp;this I&#39;ll create one more function that will combine
-  several transitions into a&nbsp;single transition that will in&nbsp;turn
-  invoke them in&nbsp;series.
-</p>
-<pre><code class="lang-js">type TransitionsCombinator = <span class="hljs-function">(<span class="hljs-params">...transitions: <span class="hljs-built_in">Array</span>&lt;Transition&gt;</span>) =&gt;</span> Transition
+</code></pre><p>However, how can I pass these two functions into one argument? To do this I'll create one more function that will combine several transitions into a single transition that will in turn invoke them in series.<pre><code class=lang-js>type TransitionsCombinator = <span class=hljs-function>(<span class=hljs-params>...transitions: <span class=hljs-built_in>Array</span>&lt;Transition></span>) =></span> Transition
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">combineTransitions</span>(<span class="hljs-params">...transitions: Array&lt;Transition&gt;</span>): <span class="hljs-title">Transition</span> </span>{
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">combinedTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">const</span> screens: <span class="hljs-built_in">Array</span>&lt;?Screen&gt; =
-      <span class="hljs-keyword">await</span>* transitions.map(<span class="hljs-function"><span class="hljs-params">transition</span> =&gt;</span> transition(url))
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>combineTransitions</span>(<span class=hljs-params>...transitions: Array&lt;Transition></span>): <span class=hljs-title>Transition</span> </span>{
+  <span class=hljs-keyword>return</span> <span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>combinedTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>const</span> screens: <span class=hljs-built_in>Array</span>&lt;?Screen> =
+      <span class=hljs-keyword>await</span>* transitions.map(<span class=hljs-function><span class=hljs-params>transition</span> =></span> transition(url))
 
-    <span class="hljs-keyword">return</span> screens.find(<span class="hljs-function"><span class="hljs-params">screen</span> =&gt;</span> screen !== <span class="hljs-literal">undefined</span>)
+    <span class=hljs-keyword>return</span> screens.find(<span class=hljs-function><span class=hljs-params>screen</span> =></span> screen !== <span class=hljs-literal>undefined</span>)
   }
 }
 
-<span class="hljs-keyword">const</span> allTransitions = combineTransitions(
+<span class=hljs-keyword>const</span> allTransitions = combineTransitions(
   indexTransition,
   itemTransition
 )
-</code></pre>
-<p>
-  That&#39;s how most routers works. Implementing URL matching and data fetching
-  in one function gives much more freedom to&nbsp;configuration and does&#39;t
-  complicate the API.
-</p>
-<p>
-  I&#39;ll add one more transition for the screen of&nbsp;the 404&nbsp;page.
-</p>
-<pre><code class="lang-js"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">notFoundTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-  <span class="hljs-keyword">return</span> {<span class="hljs-attr">component</span>: <span class="hljs-string">'NotFoundPage'</span>, <span class="hljs-attr">props</span>: {}}
+</code></pre><p>That's how most routers works. Implementing URL matching and data fetching in one function gives much more freedom to configuration and does't complicate the API.<p>I'll add one more transition for the screen of the 404 page.<pre><code class=lang-js><span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>notFoundTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+  <span class=hljs-keyword>return</span> {<span class=hljs-attr>component</span>: <span class=hljs-string>'NotFoundPage'</span>, <span class=hljs-attr>props</span>: {}}
 }
 
-<span class="hljs-keyword">const</span> allTransitions = combineTransitions(
+<span class=hljs-keyword>const</span> allTransitions = combineTransitions(
   indexTransition,
   itemTransition,
   notFoundTransition
 )
-</code></pre>
-<p>
-  In&nbsp;the same way&nbsp;I can wrap all transitions
-  so&nbsp;as&nbsp;to&nbsp;catch an&nbsp;error that&nbsp;I can use in&nbsp;the
-  screen of&nbsp;the error page.
-</p>
-<pre><code class="lang-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createErrorTransition</span>(<span class="hljs-params">transition: Transition</span>): <span class="hljs-title">Transition</span> </span>{
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">errorTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">try</span> {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> transition(url)
-    } <span class="hljs-keyword">catch</span> (error) {
-      <span class="hljs-keyword">return</span> {
-        <span class="hljs-attr">component</span>: <span class="hljs-string">'ErrorPage'</span>,
-        <span class="hljs-attr">props</span>: {error}
+</code></pre><p>In the same way I can wrap all transitions so as to catch an error that I can use in the screen of the error page.<pre><code class=lang-js><span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>createErrorTransition</span>(<span class=hljs-params>transition: Transition</span>): <span class=hljs-title>Transition</span> </span>{
+  <span class=hljs-keyword>return</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>errorTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>try</span> {
+      <span class=hljs-keyword>return</span> <span class=hljs-keyword>await</span> transition(url)
+    } <span class=hljs-keyword>catch</span> (error) {
+      <span class=hljs-keyword>return</span> {
+        <span class=hljs-attr>component</span>: <span class=hljs-string>'ErrorPage'</span>,
+        <span class=hljs-attr>props</span>: {error}
       }
     }
   }
 }
 
-<span class="hljs-keyword">const</span> allTransitions = createErrorTransition(
+<span class=hljs-keyword>const</span> allTransitions = createErrorTransition(
   combineTransitions(
     indexTransition,
     itemTransition,
     notFoundTransition
   )  
 )
-</code></pre>
-<p>
-  I&#39;ll play a&nbsp;little bit more. Most routers have the ability
-  to&nbsp;wrap a&nbsp;group of transitions with some prefix.
-</p>
-<pre><code class="lang-js">type PrefixTransition = <span class="hljs-function">(<span class="hljs-params">prefix: Url, transition: Transition</span>) =&gt;</span> Transition
+</code></pre><p>I'll play a little bit more. Most routers have the ability to wrap a group of transitions with some prefix.<pre><code class=lang-js>type PrefixTransition = <span class=hljs-function>(<span class=hljs-params>prefix: Url, transition: Transition</span>) =></span> Transition
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">prefixTransition</span>(<span class="hljs-params">prefix: Url, transition: Transition</span>): <span class="hljs-title">Transition</span> </span>{
-  <span class="hljs-keyword">const</span> prefixRe: <span class="hljs-built_in">RegExp</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">`^<span class="hljs-subst">${prefix}</span>`</span>)
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>prefixTransition</span>(<span class=hljs-params>prefix: Url, transition: Transition</span>): <span class=hljs-title>Transition</span> </span>{
+  <span class=hljs-keyword>const</span> prefixRe: <span class=hljs-built_in>RegExp</span> = <span class=hljs-keyword>new</span> <span class=hljs-built_in>RegExp</span>(<span class=hljs-string>`^<span class=hljs-subst>${prefix}</span>`</span>)
 
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">prefixedTransition</span>(<span class="hljs-params">url: Url</span>): <span class="hljs-title">Promise</span>&lt;?<span class="hljs-title">Screen</span>&gt; </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> transition(url.replace(prefixRe, <span class="hljs-string">''</span>))
+  <span class=hljs-keyword>return</span> <span class=hljs-keyword>async</span> <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>prefixedTransition</span>(<span class=hljs-params>url: Url</span>): <span class=hljs-title>Promise</span>&lt;?<span class=hljs-title>Screen</span>> </span>{
+    <span class=hljs-keyword>return</span> <span class=hljs-keyword>await</span> transition(url.replace(prefixRe, <span class=hljs-string>''</span>))
   }
 }
 
-<span class="hljs-keyword">const</span> allTransitions = createErrorTransition(
+<span class=hljs-keyword>const</span> allTransitions = createErrorTransition(
   combineTransitions(
     prefixTransition(
-      <span class="hljs-string">'/pages'</span>,
+      <span class=hljs-string>'/pages'</span>,
       combineTransitions(
         indexTransition,
         itemTransition
@@ -328,75 +131,4 @@ type TransitionCreator = <span class="hljs-function">(<span class="hljs-params">
     notFoundTransition
   )  
 )
-</code></pre>
-<p>
-  To&nbsp;make this possible I&#39;ve used higher-order functions. I&#39;ve just
-  wrapped the function to&nbsp;change its behavior, but&nbsp;I left the same
-  interface. That allows me to&nbsp;create a&nbsp;both simple and powerful
-  library API.
-</p>
-<p>
-  In&nbsp;the next parts I&#39;ll implement support of&nbsp;the History API,
-  tell you how to&nbsp;use the router on&nbsp;the server side, add redirect
-  support, show you how to&nbsp;easily test all of&nbsp;this, and so&nbsp;on.
-</p>
-</section>
-      <footer class="article__footer">
-        <time class="dt-published" datetime="2015-07-27">Jun 27th, 2015</time><br>
-        <a href="/" class="article__author p-author h-card">Viacheslav Slinko</a>
-      </footer>
-    </article>
-
-    <footer class="footer">
-      <ul class="contacts">
-        <li class="contacts__item">
-          <a class="contacts__link" href="/">Home</a>
-        </li>
-        <li class="contacts__item">
-          <a class="contacts__link" href="/posts/">Blog</a>
-        </li>
-        <li class="contacts__item">
-  <a class="contacts__link u-url" href="https://t.me/vslinko" target="blank"
-    >Telegram</a
-  >
-</li>
-<li class="contacts__item">
-  <a
-    class="contacts__link u-url"
-    href="http://facebook.com/vslinko"
-    target="blank"
-    >Facebook</a
-  >
-</li>
-<li class="contacts__item">
-  <a
-    class="contacts__link u-url"
-    href="https://ru.linkedin.com/in/vyacheslavslinko"
-    target="blank"
-    >LinkedIn</a
-  >
-</li>
-<li class="contacts__item">
-  <a
-    class="contacts__link u-url"
-    href="https://github.com/vslinko"
-    target="blank"
-    >Github</a
-  >
-</li>
-<li class="contacts__item">
-  <a
-    class="contacts__link u-url"
-    href="https://twitter.com/vslinko"
-    target="blank"
-    >Twitter</a
-  >
-</li>
-<li class="contacts__item">
-  <a class="contacts__link u-email" href="mailto:me@vslinko.com">Email</a>
-</li>
-
-      </ul>
-    </footer>
-  </body>
-</html>
+</code></pre><p>To make this possible I've used higher-order functions. I've just wrapped the function to change its behavior, but I left the same interface. That allows me to create a both simple and powerful library API.<p>In the next parts I'll implement support of the History API, tell you how to use the router on the server side, add redirect support, show you how to easily test all of this, and so on.</section><footer class=article__footer><time class=dt-published datetime=2015-07-27>Jun 27th, 2015</time><br><a href=/ class="article__author h-card p-author">Viacheslav Slinko</a></footer></article><footer class=footer><ul class=contacts><li class=contacts__item><a href=/ class=contacts__link>Home</a><li class=contacts__item><a href=/posts/ class=contacts__link>Blog</a><li class=contacts__item><a href=https://t.me/vslinko class="contacts__link u-url" target=blank>Telegram</a><li class=contacts__item><a href=http://facebook.com/vslinko class="contacts__link u-url" target=blank>Facebook</a><li class=contacts__item><a href=https://ru.linkedin.com/in/vyacheslavslinko class="contacts__link u-url" target=blank>LinkedIn</a><li class=contacts__item><a href=https://github.com/vslinko class="contacts__link u-url" target=blank>Github</a><li class=contacts__item><a href=https://twitter.com/vslinko class="contacts__link u-url" target=blank>Twitter</a><li class=contacts__item><a href=mailto:me@vslinko.com class="contacts__link u-email">Email</a></ul></footer>
