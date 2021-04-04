@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="page" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Blog - Vyacheslav Slinko's website</title>
+    <link rel="stylesheet" href="/css/normalize.min.css" />
+    <link rel="stylesheet" href="/css/screen.css" />
+  </head>
+  <body class="page__body">
+
+    <article class="article h-entry">
+      <h1 class="article__header p-name">Почему платформенные команды негативно влияют на&nbsp;систему</h1>
+      <main class="article__content e-content">
+<p>
+  Одно из&nbsp;частых управленческих решений в&nbsp;ИТ&nbsp;&mdash; выделение
+  отдельных &laquo;платформенных&raquo; команд. Обычно такие команды занимаются
+  или инфраструктурой, или системой доставки кода, или общими библиотеками, или
+  даже &laquo;ядром продукта&raquo;. Иногда таких команд делают несколько,
+  иногда одна команда занимается всеми четырьмя частями.
+</p>
+<p>
+  Мотивация у&nbsp;такого решения&nbsp;&mdash; скрыть сложность
+  от&nbsp;продуктовых команд, которые доставляют потоковую ценность, тем самым
+  повысив их&nbsp;эффективность и продуктивность.
+</p>
+<p>
+  Такое решение действительно положительно влияет на&nbsp;скорость команд,
+  за&nbsp;счет скрытия части системы и&nbsp;ограничения их&nbsp;зоны
+  ответственности, но&nbsp;краткосрочно. Долгосрочно у&nbsp;него есть негативные
+  последствия.
+</p>
+<h2>Быстро&nbsp;&mdash; не&nbsp;всегда хорошо</h2>
+<p>
+  То, что продуктовые команды начинают бежать быстро не&nbsp;всегда есть хорошо,
+  так как эта скорость приводит к&nbsp;неподконтрольному усложнению системы.
+  Продуктовые команды меньше задумываются о&nbsp;том, как их&nbsp;решение
+  впишется в&nbsp;систему, так как больша&#769;я часть ответственности находится
+  вне их&nbsp;зоны.
+</p>
+<p>
+  Чтобы систему держать в&nbsp;балансе, необходимо одновременно уделять внимание
+  всем аспектам&nbsp;&mdash; продукту, архитектуре, инфраструктуре, процессам,
+  людям, коду (и много еще чему)&nbsp;&mdash; и&nbsp;уделять внимание постоянно,
+  чтобы скорость движения команды замедлялась хотя&nbsp;бы линейно,
+  а&nbsp;не&nbsp;по&nbsp;экспоненте.
+</p>
+<p>
+  Уделять внимание всем аспектам должна та&nbsp;команда, которая работает над
+  системой и&nbsp;понимает&nbsp;ее, так как только она может достаточно глубоко
+  рассмотреть систему с&nbsp;разных сторон и&nbsp;принимать корректные решения
+  по&nbsp;ее развитию.
+</p>
+<p>
+  Конечно, для этого команда должна быть достаточно экспертной
+  и&nbsp;потребуется качать эту экспертизу. Это сложно и&nbsp;долго, но&nbsp;это
+  дает возможность держать сложность системы в&nbsp;узде
+  и&nbsp;не&nbsp;приводить к&nbsp;сильному замедлению и&nbsp;снижению гибкости.
+  Для этого команда должна получать как можно больше обратной связи по своей
+  системе, а&nbsp;не&nbsp;отдавать часть обратной связи другим командам.
+</p>
+<h2>Расслоение разработчиков</h2>
+<p>
+  Еще такое решение способствует расслоению, так как, обычно,
+  в&nbsp;платформенные команды ищут людей посильнее. За&nbsp;счет разного
+  профиля работ и&nbsp;разных целей со временем платформенные и&nbsp;продуктовые
+  разработчики начинают меньше понимать друг друга и&nbsp;меньше обмениваться
+  знаниями. Платформенные разработчики перестают понимать проблемы разработки,
+  что способствует созданию оторванных от&nbsp;реальности решений. Продуктовые
+  разработчики недополучают сложных развивающих задач.
+</p>
+<p>
+  Часто существует риск того, что платформенная команда начинает диктовать
+  продуктовым командам различные правила что можно делать, а&nbsp;что нельзя.
+  С&nbsp;одной стороны это стандартизирует и&nbsp;унифицирует, но, с&nbsp;другой
+  стороны, это так&nbsp;же ограничивает развитие и&nbsp;гибкость продуктовых
+  команд.
+</p>
+<h2>И&nbsp;что делать?</h2>
+<p>
+  Я&nbsp;не&nbsp;хочу сказать, что платформенные команды совсем не&nbsp;нужны.
+  Платформенные команды создаются для того, чтобы скрывать сложность, чтобы
+  не&nbsp;делать из&nbsp;раза в&nbsp;раз одно и&nbsp;тоже. Это полезно.
+  Но&nbsp;нужно держать границы платформенной команды под контролем.
+  Платформенная команда должна быть Thinnest Viable Platform &mdash; должна
+  абстрагировать сложность и&nbsp;являться сервисом для продуктовых команд, а
+  не&nbsp;быть надзорным органом.
+</p>
+<p>
+  Заметили слова &laquo;сервис&raquo; и&nbsp;&laquo;платформа&raquo;
+  в&nbsp;одном предложении? В&nbsp;современном мире уже существуют множество
+  Platform as&nbsp;a&nbsp;Service, которыми можно пользоваться и&nbsp;многие так
+  и&nbsp;делают. Так что, возможно, вам не&nbsp;нужна собственная команда
+  платформы.
+</p>
+<h2>Вдохновлено</h2>
+<ul>
+  <li>своим опытом и&nbsp;наблюдениями;</li>
+  <li>понятием обратной связи;</li>
+  <li>
+    напоминанием о&nbsp;важности обратной связи для разработчиков в&nbsp;статье
+    <a href="https://martinfowler.com/articles/developer-effectiveness.html"
+      >Maximizing Developer Effectiveness</a
+    >;
+  </li>
+  <li>
+    мыслями про платформенные команды в&nbsp;статье
+    <a
+      href="https://medium.com/better-programming/your-team-structures-aint-working-let-s-apply-team-topologies-470e8d4f7fe5"
+      >Your Team Structures Ain&rsquo;t Working. Let&rsquo;s Apply Team
+      Topologies</a
+    >;
+  </li>
+  <li>
+    многими идеями крутых людей из&nbsp;сообщесва
+    <a href="https://t.me/modernsd">Современная разработка ПО</a>.
+  </li>
+</ul>
+</main>
+      <footer class="article__footer">
+        <time class="dt-published" datetime="2021-04-04">Apr 4th, 2021</time><br>
+        <a href="/" class="article__author p-author h-card">Viacheslav Slinko</a>
+      </footer>
+    </article>
+
+    <footer class="footer">
+      <ul class="contacts">
+        <li class="contacts__item">
+          <a class="contacts__link" href="/">Home</a>
+        </li>
+        <li class="contacts__item">
+          <a class="contacts__link" href="/posts/">Blog</a>
+        </li>
+        <li class="contacts__item">
+  <a class="contacts__link u-url" href="https://t.me/vslinko" target="blank"
+    >Telegram</a
+  >
+</li>
+<li class="contacts__item">
+  <a
+    class="contacts__link u-url"
+    href="http://facebook.com/vslinko"
+    target="blank"
+    >Facebook</a
+  >
+</li>
+<li class="contacts__item">
+  <a
+    class="contacts__link u-url"
+    href="https://ru.linkedin.com/in/vyacheslavslinko"
+    target="blank"
+    >LinkedIn</a
+  >
+</li>
+<li class="contacts__item">
+  <a
+    class="contacts__link u-url"
+    href="https://github.com/vslinko"
+    target="blank"
+    >Github</a
+  >
+</li>
+<li class="contacts__item">
+  <a
+    class="contacts__link u-url"
+    href="https://twitter.com/vslinko"
+    target="blank"
+    >Twitter</a
+  >
+</li>
+<li class="contacts__item">
+  <a class="contacts__link u-email" href="mailto:me@vslinko.com">Email</a>
+</li>
+
+      </ul>
+    </footer>
+  </body>
+</html>
