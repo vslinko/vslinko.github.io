@@ -13,6 +13,7 @@
 
         await Promise.all([loadImage(), wait(500)]);
 
+        document.querySelector(".page").classList.add("page-img_loaded");
         document.querySelector(".bg").classList.add("bg-img_loaded");
         document
           .querySelector(".mainpage_header")
