@@ -6,6 +6,17 @@
       body {
         padding: 0;
         margin: 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .commento-root
+          .commento-logged-container
+          .commento-logged-in-as
+          .commento-name,
+        .commento-root .commento-card .commento-name,
+        .commento-root * {
+          color: #cccccc !important;
+        }
       }</style><div id=commento></div><script>const commento = document.querySelector("#commento");
       const iframe = window.parent.document.querySelector(".comments_iframe");
 
