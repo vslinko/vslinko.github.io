@@ -8,15 +8,6 @@ async function loadPage(url) {
       selector
     ).innerHTML;
   }
-
-  const disqusUrl = doc.querySelector("#disqus_thread").dataset.url;
-  window.disqus_config = function () {
-    this.page.url = disqusUrl;
-  };
-
-  window.DISQUS.reset({
-    reload: true,
-  });
 }
 
 document.addEventListener("click", async (e) => {

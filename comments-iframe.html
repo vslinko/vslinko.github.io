@@ -1,0 +1,17 @@
+<!doctype html><div id=commento></div><script>const commento = document.querySelector("#commento");
+      const iframe = window.parent.document.querySelector(".comments_iframe");
+
+      function syncHeight() {
+        iframe.style.height = `${commento.clientHeight}px`;
+      }
+
+      syncHeight();
+      const ro = new ResizeObserver(syncHeight);
+      ro.observe(commento);
+
+      const s = document.createElement("script");
+      s.async = true;
+      s.dataset.noFonts = "true";
+      s.dataset.pageId = new URLSearchParams(location.search).get("page-id");
+      s.src = "https://cdn.commento.io/js/commento.js";
+      document.head.appendChild(s);</script>
