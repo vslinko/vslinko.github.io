@@ -1,44 +1,56 @@
-const selectorsToUpdate = [
-  "title",
-  ".garden_layout__header",
-  ".garden_layout__main",
-  ".garden_layout__toc",
-];
+(function () {
+  const selectorsToUpdate = [
+    "title",
+    ".garden_layout__header",
+    ".garden_layout__main",
+    ".garden_layout__toc",
+  ];
 
-async function loadPage(url) {
-  const res = await fetch(url);
-  const data = await res.text();
-  const doc = new DOMParser().parseFromString(data, "text/html");
+  let loadedPage = new URL(location);
 
-  for (const selector of selectorsToUpdate) {
-    document.querySelector(selector).innerHTML = doc.querySelector(
-      selector
-    ).innerHTML;
-  }
-}
+  async function loadPage(url) {
+    const res = await fetch(url);
+    const data = await res.text();
+    const doc = new DOMParser().parseFromString(data, "text/html");
 
-document.addEventListener("click", async (e) => {
-  if (e.target.tagName !== "A") {
-    return;
-  }
+    for (const selector of selectorsToUpdate) {
+      document.querySelector(selector).innerHTML = doc.querySelector(
+        selector
+      ).innerHTML;
+    }
 
-  const url = new URL(e.target.href);
-
-  if (
-    url.origin !== location.origin ||
-    !url.pathname.startsWith("/garden/") ||
-    url.pathname === location.pathname
-  ) {
-    return;
+    loadedPage = url;
   }
 
-  e.preventDefault();
+  document.addEventListener("click", async (e) => {
+    if (e.target.tagName !== "A") {
+      return;
+    }
 
-  await loadPage(url);
+    const url = new URL(e.target.href);
 
-  history.pushState(null, document.querySelector("title").innerHTML, url);
-});
+    if (
+      url.origin !== location.origin ||
+      !url.pathname.startsWith("/garden/") ||
+      url.pathname === location.pathname
+    ) {
+      return;
+    }
 
-window.onpopstate = async () => {
-  await loadPage(new URL(location));
-};
+    e.preventDefault();
+
+    await loadPage(url);
+
+    history.pushState(null, document.querySelector("title").innerHTML, url);
+  });
+
+  window.onpopstate = async () => {
+    const newUrl = new URL(location);
+
+    if (newUrl.pathname === loadedPage.pathname) {
+      return;
+    }
+
+    await loadPage(new URL(location));
+  };
+})();
