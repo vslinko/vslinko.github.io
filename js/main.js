@@ -1,9 +1,16 @@
+const selectorsToUpdate = [
+  "title",
+  ".garden_layout__header",
+  ".garden_layout__main",
+  ".garden_layout__toc",
+];
+
 async function loadPage(url) {
   const res = await fetch(url);
   const data = await res.text();
   const doc = new DOMParser().parseFromString(data, "text/html");
 
-  for (const selector of ["title", ".garden_layout__main", ".toc"]) {
+  for (const selector of selectorsToUpdate) {
     document.querySelector(selector).innerHTML = doc.querySelector(
       selector
     ).innerHTML;
