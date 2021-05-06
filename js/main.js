@@ -20,6 +20,7 @@
     }
 
     loadedPage = url;
+    window.scrollTo(0, 0);
   }
 
   document.addEventListener("click", async (e) => {
