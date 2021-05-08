@@ -1,5 +1,6 @@
 ---
 tags: public
+changefreq: weekly
 ---
 
 # Viacheslav Slinko's Garden
