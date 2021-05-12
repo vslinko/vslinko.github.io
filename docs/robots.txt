@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /comments-iframe.html
 
 Sitemap: https://vslinko.com/sitemap.xml
