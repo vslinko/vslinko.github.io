@@ -46,6 +46,7 @@ summary: Одно из частых управленческих решений 
 - статья [Maximizing Developer Effectiveness](https://martinfowler.com/articles/developer-effectiveness.html) напомнила о важности обратной связи для разработчиков;
 - мысли про платформенные команды из статьи [Your Team Structures Ain’t Working. Let’s Apply Team Topologies](https://medium.com/better-programming/your-team-structures-aint-working-let-s-apply-team-topologies-470e8d4f7fe5).
 
+<!--hidden-->
 
 ---
 
@@ -56,7 +57,3 @@ summary: Одно из частых управленческих решений 
 - [[Платформенная команда должна работать как thinnest valuable platform и предоставлять сервис]]
 - [[Задача платформенной команды скрывать сложность от потоковых команд]]
 - [[Есть риск что платформенная команда начнёт диктовать условия работы]]
-
-<!--hidden-->
-
-опубликовать в слак и в чатик modernsd
