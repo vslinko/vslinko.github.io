@@ -7,5 +7,37 @@
   <atom:link href="https://vslinko.com/posts/rss.xml" rel="self" type="application/rss+xml" />
 
   
+  <item>
+    <title>Почему платформенные команды негативно влияют на систему</title>
+    <link>https://vslinko.com/ru/posts/2021-04-04-pochemu-platformennye-komandy-negativno-vliyayut-na-sistemu.html</link>
+    <guid isPermaLink="true">https://vslinko.com/ru/posts/2021-04-04-pochemu-platformennye-komandy-negativno-vliyayut-na-sistemu.html</guid>
+    <description><![CDATA[ Одно из частых управленческих решений в ИТ — выделение отдельных «платформенных» команд. Такое решение действительно положительно влияет на скорость команд, но краткосрочно. Долгосрочно у него есть негативные последствия. ]]></description>
+    <pubDate>Sun, 04 Apr 2021 00:00:00 GMT</pubDate>
+  </item>
+  
+  <item>
+    <title>Психология не только про «выговориться», но и про рациональность</title>
+    <link>https://vslinko.com/ru/posts/2021-03-27-psikhologiya-ne-tolko-pro-vygovoritsya-no-i-pro-ratsionalnost.html</link>
+    <guid isPermaLink="true">https://vslinko.com/ru/posts/2021-03-27-psikhologiya-ne-tolko-pro-vygovoritsya-no-i-pro-ratsionalnost.html</guid>
+    <description><![CDATA[ Долгое время я воспринимал психологию и сеансы психологов только как способ «выговориться», проработать эмоции и успокоится. Оказывается, существует рациональная часть в психологии, которая меня заинтересовала. ]]></description>
+    <pubDate>Sat, 27 Mar 2021 00:00:00 GMT</pubDate>
+  </item>
+  
+  <item>
+    <title>Потребление информации ≠ обучение</title>
+    <link>https://vslinko.com/ru/posts/2021-03-20-potreblenie-informatsii-ne-ravno-obuchenie.html</link>
+    <guid isPermaLink="true">https://vslinko.com/ru/posts/2021-03-20-potreblenie-informatsii-ne-ravno-obuchenie.html</guid>
+    <description><![CDATA[ Долгое время я думал, что хорошо и правильно развиваюсь. Я решал практические задачи, читал статьи, смотрел видео, слушал подкасты. И это работало, пока я не перешел в менеджмент и не обнаружил себя решающим похожие проблемы раз за разом. ]]></description>
+    <pubDate>Sat, 20 Mar 2021 00:00:00 GMT</pubDate>
+  </item>
+  
+  <item>
+    <title>Isomorphic router in functional paradigm</title>
+    <link>https://vslinko.com/en/posts/2015-07-27-router-1.html</link>
+    <guid isPermaLink="true">https://vslinko.com/en/posts/2015-07-27-router-1.html</guid>
+    <description><![CDATA[ In this article I'll try to describe and implement a simple isomorphic router using functional paradigm principles. ]]></description>
+    <pubDate>Mon, 27 Jul 2015 00:00:00 GMT</pubDate>
+  </item>
+  
 </channel>
 </rss>
